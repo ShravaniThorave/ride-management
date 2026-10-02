@@ -12,6 +12,7 @@ const assistantRoutes = require('./routes/assistant.routes');
 const passengerRoutes = require('./routes/passenger.routes');
 const driverRoutes = require('./routes/driver.routes');
 const rideRoutes = require('./routes/ride.routes');
+const paymentRoutes = require('./routes/payment.routes');
 
 // ============================================
 // CREATE EXPRESS APP
@@ -50,6 +51,7 @@ app.use('/api/assistant', assistantRoutes);
 app.use('/api/passengers', passengerRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/rides', rideRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // ============================================
 // ERROR HANDLER (Must be LAST)
