@@ -161,6 +161,21 @@ const completeRide = asyncHandler(async (req, res) => {
 });
 
 /**
+ * PUT /api/rides/:id/cancel
+ * Cancel a ride (allowed from requested / accepted / started;
+ * the model throws 400 for completed / cancelled rides).
+ * Auth: required.
+ */
+const cancelRide = asyncHandler(async (req, res) => {
+    // Ride model throws 404 ApiError if the ride does not exist
+    const updatedRide = await Ride.cancelRide(req.params.id);
+
+    res.status(200).json(
+        new ApiResponse(200, updatedRide, 'Ride cancelled')
+    );
+});
+
+/**
  * GET /api/rides/:id
  * Get a single ride, scoped to the logged-in user (passengers see their
  * own rides, drivers see rides they drove, admins see any ride).
@@ -260,6 +275,7 @@ module.exports = {
     acceptRide,
     startRide,
     completeRide,
+    cancelRide,
     getRideById,
     getMyRides,
     getRidesByStatus,

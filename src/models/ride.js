@@ -480,6 +480,62 @@ class Ride {
     }
 
     /**
+     * CANCEL RIDE
+     * Cancels a ride (requested / accepted / started -> cancelled).
+     * completed / cancelled rides cannot be cancelled.
+     *
+     * @param {number} rideId - Ride ID
+     * @returns {Object} - Updated ride object
+     */
+    static async cancelRide(rideId) {
+        const connection = await pool.getConnection();
+
+        try {
+            // Fetch current status
+            const [existing] = await connection.query(
+                'SELECT id, status FROM rides WHERE id = ?',
+                [rideId]
+            );
+
+            if (existing.length === 0) {
+                throw new ApiError(404, 'Ride not found. Cannot cancel ride');
+            }
+
+            const ride = existing[0];
+
+            if (ride.status === 'completed') {
+                throw new ApiError(400, 'Ride is already completed. Cannot cancel');
+            }
+
+            if (ride.status === 'cancelled') {
+                throw new ApiError(400, 'Ride is already cancelled');
+            }
+
+            const query = `
+                UPDATE rides
+                SET status = 'cancelled'
+                WHERE id = ?
+            `;
+
+            const [result] = await connection.query(query, [rideId]);
+
+            if (result.affectedRows === 0) {
+                throw new ApiError(404, 'Ride not found. Ride not cancelled');
+            }
+
+            // Return updated ride
+            return await Ride.findById(rideId);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(500, `Failed to cancel ride: ${error.message}`);
+        } finally {
+            connection.release();
+        }
+    }
+
+    /**
      * GET RIDES BY STATUS
      * Returns rides with a specific status (newest first)
      *

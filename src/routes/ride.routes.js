@@ -6,6 +6,7 @@ const {
     acceptRide,
     startRide,
     completeRide,
+    cancelRide,
     getRideById,
     getMyRides,
     getRidesByStatus,
@@ -225,6 +226,35 @@ router.get('/status/:status', getRidesByStatus);
  *         description: Unauthorized - please login first
  */
 router.get('/estimate', verifyJWT, estimateFare);
+
+/**
+ * @swagger
+ * /api/rides/{id}/cancel:
+ *   put:
+ *     summary: Cancel a ride (requested/accepted/started -> cancelled)
+ *     tags:
+ *       - Rides
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Ride cancelled
+ *       400:
+ *         description: Ride cannot be cancelled (already completed or cancelled)
+ *       401:
+ *         description: Unauthorized - please login first
+ *       404:
+ *         description: Ride not found
+ */
+router.put('/:id/cancel', verifyJWT, cancelRide);
 
 /**
  * @swagger

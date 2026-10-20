@@ -15,6 +15,7 @@ const rideRoutes = require('./routes/ride.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const ratingRoutes = require('./routes/rating.routes');
 const supportRoutes = require('./routes/support.routes');
+const summaryRoutes = require('./routes/summary.routes');
 
 // ============================================
 // CREATE EXPRESS APP
@@ -61,6 +62,7 @@ app.use('/api/rides', rideRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/admin/summary', summaryRoutes);
 
 // ============================================
 // ERROR HANDLER (Must be LAST)
