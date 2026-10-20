@@ -178,6 +178,10 @@ END//
 DELIMITER ;
 
 -- Trigger 2: Update driver rating average
+-- NOTE: No subquery over `drivers` here — MySQL forbids referencing the
+-- target table of an UPDATE from within the same UPDATE statement
+-- ("Can't specify target table for update in FROM clause").
+-- Matching `user_id = NEW.ratee_id` alone only ever hits driver rows.
 DELIMITER //
 CREATE TRIGGER IF NOT EXISTS update_driver_rating
 AFTER INSERT ON ratings
@@ -188,9 +192,7 @@ BEGIN
         SELECT AVG(rating) FROM ratings 
         WHERE ratee_id = NEW.ratee_id
     )
-    WHERE user_id = NEW.ratee_id AND NEW.ratee_id IN (
-        SELECT user_id FROM drivers
-    );
+    WHERE user_id = NEW.ratee_id;
 END//
 DELIMITER ;
 
@@ -205,9 +207,7 @@ BEGIN
         SELECT AVG(rating) FROM ratings 
         WHERE ratee_id = NEW.ratee_id
     )
-    WHERE user_id = NEW.ratee_id AND NEW.ratee_id IN (
-        SELECT user_id FROM passengers
-    );
+    WHERE user_id = NEW.ratee_id;
 END//
 DELIMITER ;
 
@@ -276,9 +276,13 @@ ALTER TABLE payments ADD INDEX IF NOT EXISTS idx_ride_status (ride_id, status);
 -- SAMPLE DATA (FOR TESTING)
 -- ============================================
 
--- Insert sample user
-INSERT INTO users (name, email, password_hash, phone, role) 
-VALUES ('Test User', 'test@example.com', '$2b$10$test', '9876543210', 'passenger')
+-- Insert sample users (password for both: password123)
+INSERT INTO users (name, email, password_hash, phone, role)
+VALUES ('Demo Passenger', 'passenger@demo.com', '$2b$10$1dftU3BHLPk/3zbsGpii4uflBXxwAe2Vb0oDXMsUiH5kJwEdAbvoi', '9876543210', 'passenger')
+ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO users (name, email, password_hash, phone, role)
+VALUES ('Demo Driver', 'driver@demo.com', '$2b$10$1dftU3BHLPk/3zbsGpii4uflBXxwAe2Vb0oDXMsUiH5kJwEdAbvoi', '9876543211', 'driver')
 ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP;
 
 -- ============================================

@@ -13,6 +13,8 @@ const passengerRoutes = require('./routes/passenger.routes');
 const driverRoutes = require('./routes/driver.routes');
 const rideRoutes = require('./routes/ride.routes');
 const paymentRoutes = require('./routes/payment.routes');
+const ratingRoutes = require('./routes/rating.routes');
+const supportRoutes = require('./routes/support.routes');
 
 // ============================================
 // CREATE EXPRESS APP
@@ -24,7 +26,12 @@ const app = express();
 // ============================================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 // ============================================
@@ -52,6 +59,8 @@ app.use('/api/passengers', passengerRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/ratings', ratingRoutes);
+app.use('/api/support', supportRoutes);
 
 // ============================================
 // ERROR HANDLER (Must be LAST)

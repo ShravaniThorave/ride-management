@@ -49,13 +49,15 @@ const verifyJWT = async (req, res, next) => {
         // Get token from cookie or authorization header
         let token;
         
-        // Try to get from cookie first
-        if (req.cookies && req.cookies.accessToken) {
-            token = req.cookies.accessToken;
-        }
-        // Or from Authorization header (Bearer token)
-        else if (req.headers.authorization) {
+        // Prefer the explicit Authorization header (per-request token) over
+        // the cookie. The httpOnly accessToken cookie is browser-global and
+        // survives account switches, so cookie-first auth leaked one user's
+        // data into another account's requests when both tokens were present.
+        if (req.headers.authorization) {
             token = req.headers.authorization.replace("Bearer ", "");
+        }
+        else if (req.cookies && req.cookies.accessToken) {
+            token = req.cookies.accessToken;
         }
         
         // If no token found

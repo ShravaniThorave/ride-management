@@ -214,6 +214,47 @@ const getRidesByStatus = asyncHandler(async (req, res) => {
     );
 });
 
+/**
+ * GET /api/rides/estimate?pickup=...&dropoff=...
+ * Estimate distance and fare for a pickup/dropoff pair.
+ * NOTE: There is no distance service in this project (checked src/models,
+ * src/controllers, src/services, src/utils), so distance_km is a fixed
+ * placeholder of 7.5 km, flagged in the response with estimated: true.
+ * Fare reuses the Ride model's existing formula:
+ * base_fare + (distance_km x 15), base_fare = 100.
+ * Auth: required (verifyJWT), matching the other ride GET routes.
+ */
+const estimateFare = asyncHandler(async (req, res) => {
+    const { pickup, dropoff } = req.query;
+
+    if (!pickup || !String(pickup).trim()) {
+        throw new ApiError(400, 'Query parameter "pickup" is required');
+    }
+
+    if (!dropoff || !String(dropoff).trim()) {
+        throw new ApiError(400, 'Query parameter "dropoff" is required');
+    }
+
+    // No distance/geo service exists -> fixed placeholder distance
+    const distanceKm = 7.5;
+
+    // Existing fare formula from Ride.calculateFare (surge defaults to 1.0)
+    const estimatedFare = await Ride.calculateFare(distanceKm);
+
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                distance_km: distanceKm,
+                base_fare: Ride.BASE_FARE,
+                estimated_fare: estimatedFare,
+                estimated: true,
+            },
+            'Fare estimate fetched'
+        )
+    );
+});
+
 module.exports = {
     bookRide,
     acceptRide,
@@ -222,4 +263,5 @@ module.exports = {
     getRideById,
     getMyRides,
     getRidesByStatus,
+    estimateFare,
 };

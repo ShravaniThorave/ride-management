@@ -37,7 +37,7 @@ class User {
             // Hash the password using bcrypt
             // bcrypt.hash(password, saltRounds)
             // saltRounds = 10 means 2^10 iterations (security vs speed tradeoff)
-            const hashedPassword = await bcrypt.hash(password, 3);
+            const hashedPassword = await bcrypt.hash(password, 10);
             
             // Insert user into database
             const query = `

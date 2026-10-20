@@ -9,6 +9,7 @@ const {
     getRideById,
     getMyRides,
     getRidesByStatus,
+    estimateFare,
 } = require('../controllers/rideController');
 
 /**
@@ -191,6 +192,39 @@ router.get('/my', verifyJWT, getMyRides);
  *         description: Invalid status
  */
 router.get('/status/:status', getRidesByStatus);
+
+/**
+ * @swagger
+ * /api/rides/estimate:
+ *   get:
+ *     summary: Estimate distance and fare for a pickup/dropoff pair
+ *     tags:
+ *       - Rides
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: pickup
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: Andheri
+ *       - in: query
+ *         name: dropoff
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: Bandra
+ *     responses:
+ *       200:
+ *         description: Fare estimate returned (distance is a placeholder, estimated: true)
+ *       400:
+ *         description: pickup or dropoff query parameter is missing
+ *       401:
+ *         description: Unauthorized - please login first
+ */
+router.get('/estimate', verifyJWT, estimateFare);
 
 /**
  * @swagger
